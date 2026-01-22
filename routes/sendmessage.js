@@ -1,5 +1,5 @@
 import express from 'express';
-import { chatNotif } from '../services/notificationService';
+import { chatNotif } from '../services/notificationService.js';
 const router = express.Router();
 
 router.post("/sendmessage", async (req, res) => {
