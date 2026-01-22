@@ -1,4 +1,4 @@
-import { messaging, db } from "../firebaseAdmin.js";
+import { messaging, db } from "../firebase.js";
 
 export const RechargeNotif = async (
     userId,

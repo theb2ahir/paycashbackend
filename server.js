@@ -4,6 +4,7 @@ import recharges from './routes/recharges.js';
 import transfer from './routes/transfer.js';
 import retrait from './routes/retrait.js';
 import dashboard from './routes/dashboard.js';
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -26,10 +27,9 @@ app.use("/paycashRECHARGE", recharges);
 app.use("/paycashTRANSFERT", transfer);
 app.use("/paycashRETRAIT", retrait);
 app.use("/paycashDASHBOARD", dashboard);
-app.use("/paycashNOTIF", sendnotif);
 
 
-app.listen(PORT, () => {
+app.listen(port, () => {
   console.log(`🚀  server running on port ${port}`);
 });
 
