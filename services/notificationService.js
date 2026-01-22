@@ -1,122 +1,90 @@
 import { messaging, db } from "../firebase.js";
 
-export const RechargeNotif = async (
-    userId,
-    amount,
-    number,
-    operator
-) => {
+export const RechargeNotif = async (userId, amount, number, operator) => {
     try {
-        // Récupérer le token FCM depuis Firestore
         const userDoc = await db.collection("users").doc(userId).get();
-
-        if (!userDoc.exists) {
-            console.log("Utilisateur introuvable");
-            return;
-        }
+        if (!userDoc.exists) return;
 
         const fcmToken = userDoc.data().fcmToken;
+        if (!fcmToken) return;
 
-        if (!fcmToken) {
-            console.log("Aucun FCM token pour cet utilisateur");
-            return;
-        }
-
-        const message = {
+        await messaging.send({
             token: fcmToken,
-            title: "Recharge réussie ✅",
-            body: `Recharge de ${amount} FCFA sur ${number} (${operator})`,
-
-        };
-
-        await messaging.send(message);
+            notification: {
+                title: "Recharge réussie ✅",
+                body: `Recharge de ${amount} FCFA sur ${number} (${operator})`,
+            },
+            data: {
+                type: "RECHARGE",
+                amount: amount.toString(),
+                operator,
+            },
+        });
     } catch (error) {
-        console.error("Erreur notification:", error.message);
+        console.error("RechargeNotif:", error.message);
     }
 };
 
-export const TransfertNotif = async (
-    fromUserId,
-    toUserId,
-    amount,
-) => {
+export const TransfertNotif = async (fromUserId, toUserId, amount) => {
     try {
-        // Récupérer le token FCM depuis Firestore
-        const fromUserDoc = await db.collection("users").doc(fromUserId).get();
-        const toUserDoc = await db.collection("users").doc(toUserId).get();
+        const [fromUserDoc, toUserDoc] = await Promise.all([
+            db.collection("users").doc(fromUserId).get(),
+            db.collection("users").doc(toUserId).get(),
+        ]);
 
-        if (!fromUserDoc.exists || !toUserDoc.exists) {
-            console.log("Utilisateur introuvable");
-            return;
-        }
+        if (!fromUserDoc.exists || !toUserDoc.exists) return;
 
-        const fromFcmToken = fromUserDoc.data().fcmToken;
-        const toFcmToken = toUserDoc.data().fcmToken;
-        const fromname = fromUserDoc.data().name;
-        const toname = toUserDoc.data().name;
+        const fromToken = fromUserDoc.data().fcmToken;
+        const toToken = toUserDoc.data().fcmToken;
 
-        if (!fromFcmToken || !toFcmToken) {
-            console.log("Aucun FCM token pour ces utilisateurs");
-            return;
-        }
+        if (!fromToken || !toToken) return;
 
-        const message1 = {
-            token: fromFcmToken,
-            title: "PayCash",
-            body: `Transfert de ${amount} FCFA a ${toname}`,
+        const fromName = fromUserDoc.data().name;
+        const toName = toUserDoc.data().name;
 
-        };
-        const message2 = {
-            token: toFcmToken,
-            title: "PayCash",
-            body: `Vous avez reçu ${amount} FCFA de ${fromname}`,
-
-        };
-
-        await messaging.send(message1);
-        await messaging.send(message2);
+        await Promise.all([
+            messaging.send({
+                token: fromToken,
+                notification: {
+                    title: "PayCash",
+                    body: `Transfert de ${amount} FCFA à ${toName}`,
+                },
+                data: { type: "TRANSFERT_SENT" },
+            }),
+            messaging.send({
+                token: toToken,
+                notification: {
+                    title: "PayCash",
+                    body: `Vous avez reçu ${amount} FCFA de ${fromName}`,
+                },
+                data: { type: "TRANSFERT_RECEIVED" },
+            }),
+        ]);
     } catch (error) {
-        console.error("Erreur notification:", error.message);
+        console.error("TransfertNotif:", error.message);
     }
 };
 
-export const RetraitNotif = async (
-    userId,
-    amount,
-    number,
-    operator
-) => {
+export const RetraitNotif = async (userId, amount, number, operator) => {
     try {
-        // Récupérer le token FCM depuis Firestore
         const userDoc = await db.collection("users").doc(userId).get();
-
-        if (!userDoc.exists) {
-            console.log("Utilisateur introuvable");
-            return;
-        }
+        if (!userDoc.exists) return;
 
         const fcmToken = userDoc.data().fcmToken;
+        if (!fcmToken) return;
 
-        if (!fcmToken) {
-            console.log("Aucun FCM token pour cet utilisateur");
-            return;
-        }
-
-        const message = {
+        await messaging.send({
             token: fcmToken,
-            title: "Retrait réussi ✅",
-            body: `Retrait de ${amount} FCFA sur ${number} (${operator})`,
-        };
-
-        await messaging.send(message);
+            notification: {
+                title: "Retrait réussi ✅",
+                body: `Retrait de ${amount} FCFA sur ${number} (${operator})`,
+            },
+            data: {
+                type: "RETRAIT",
+                amount: amount.toString(),
+            },
+        });
     } catch (error) {
-        console.error("Erreur notification:", error.message);
+        console.error("RetraitNotif:", error.message);
     }
-};
-
-
-export default {
-    RechargeNotif,
-    TransfertNotif,
-    RetraitNotif,
 };
