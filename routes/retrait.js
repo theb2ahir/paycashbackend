@@ -44,7 +44,7 @@ router.post("/withdraw", async (req, res) => {
         date: new Date(),
     });
 
-    RetraitNotif(userId, amount, number, operator);
+    await RetraitNotif(userId, amount, number, operator);
 
     return res.json({
         status: "success",

@@ -30,7 +30,7 @@ router.post("/recharge", async (req, res) => {
         date: new Date(),
     });
 
-    RechargeNotif(userId, amount, number, operator);
+    await RechargeNotif(userId, amount, number, operator);
 
     return res.json({
         status: "success",

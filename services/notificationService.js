@@ -88,3 +88,26 @@ export const RetraitNotif = async (userId, amount, number, operator) => {
         console.error("RetraitNotif:", error.message);
     }
 };
+
+export const chatNotif = async (userId, message, senderId) => {
+    try {
+        const userDoc = await db.collection("users").doc(userId).get();
+        const senderDoc = await db.collection("users").doc(senderId).get();
+        if (!userDoc.exists) return;
+
+        const fcmToken = userDoc.data().fcmToken;
+        const senderName = senderDoc.data().name;
+        if (!fcmToken || !senderName) return;
+
+        await messaging.send({
+            token: fcmToken,
+            notification: {
+                title: "Nouveau message de " + senderName,
+                body: message,
+            },
+            data: { type: "CHAT" },
+        });
+    } catch (error) {
+        console.error("chatNotif:", error.message);
+    }
+}

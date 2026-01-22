@@ -4,6 +4,7 @@ import recharges from './routes/recharges.js';
 import transfer from './routes/transfer.js';
 import retrait from './routes/retrait.js';
 import dashboard from './routes/dashboard.js';
+import sendmessage from './routes/sendmessage.js';
 
 const app = express();
 app.use(cors());
@@ -27,6 +28,7 @@ app.use("/paycashRECHARGE", recharges);
 app.use("/paycashTRANSFERT", transfer);
 app.use("/paycashRETRAIT", retrait);
 app.use("/paycashDASHBOARD", dashboard);
+app.use("/paycashSENDMESSAGE", sendmessage);
 
 
 app.listen(port, () => {

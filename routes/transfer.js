@@ -50,7 +50,7 @@ router.post("/transfer", async (req, res) => {
             date: new Date(),
         });
 
-        TransfertNotif(fromUserId, toUserId, amount);
+        await TransfertNotif(fromUserId, toUserId, amount);
 
         res.json({
             status: "success",
